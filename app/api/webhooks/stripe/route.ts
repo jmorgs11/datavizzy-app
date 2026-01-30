@@ -1,6 +1,7 @@
 import { NextResponse } from 'next/server'
 import Stripe from 'stripe'
 import { headers } from 'next/headers'
+import { clerkClient } from '@clerk/nextjs'
 
 const stripe = new Stripe(process.env.STRIPE_SECRET_KEY!, {
   apiVersion: '2023-10-16',
@@ -30,8 +31,22 @@ export async function POST(req: Request) {
   switch (event.type) {
     case 'checkout.session.completed':
       const session = event.data.object as Stripe.Checkout.Session
-      // Here you would update your database with subscription info
       console.log('Subscription created:', session)
+      
+      // Save Stripe customer ID to Clerk user metadata
+      if (session.metadata?.userId && session.customer) {
+        try {
+          await clerkClient.users.updateUserMetadata(session.metadata.userId, {
+            publicMetadata: {
+              stripeCustomerId: session.customer,
+            },
+          })
+          console.log('Saved Stripe customer ID to Clerk user:', session.metadata.userId)
+        } catch (error) {
+          console.error('Error updating Clerk user metadata:', error)
+        }
+      }
+      
       // TODO: Save subscription to database
       break
 

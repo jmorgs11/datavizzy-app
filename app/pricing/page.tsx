@@ -40,76 +40,59 @@ export default function PricingPage() {
 
   const plans = [
     {
-      name: 'Starter',
+      name: 'Standard',
       price: '$299',
       period: '/month',
-      description: 'Perfect for small teams getting started with data visualization',
+      description: 'Perfect for teams that need consistent visualization support',
       features: [
-        '5 visualizations per month',
-        '2 revisions per project',
+        'Unlimited visualizations per month',
+        'Unlimited revisions',
         '48-hour delivery',
         'Email support',
-        'Basic charts & graphs'
+        'Advanced charts & dashboards',
+        'Custom branding'
       ],
       popular: false,
-      priceId: process.env.NEXT_PUBLIC_STRIPE_STARTER_PRICE_ID || 'price_starter'
+      priceId: process.env.NEXT_PUBLIC_STRIPE_STARTER_PRICE_ID || 'price_standard'
     },
     {
       name: 'Pro',
-      price: '$599',
+      price: '$499',
       period: '/month',
-      description: 'For growing businesses that need consistent visualization support',
+      description: 'For teams that need visualization plus deep data analysis',
       features: [
-        '15 visualizations per month',
-        'Unlimited revisions',
+        'Everything in Standard, plus:',
+        'Additional data analysis',
+        'Priority support & delivery',
         '24-hour delivery',
-        'Priority support',
-        'Advanced dashboards',
-        'Interactive charts',
-        'Custom branding'
+        'Interactive dashboards',
+        'Real-time data integration',
+        'Dedicated account manager'
       ],
       popular: true,
       priceId: process.env.NEXT_PUBLIC_STRIPE_PRO_PRICE_ID || 'price_pro'
-    },
-    {
-      name: 'Enterprise',
-      price: '$1,299',
-      period: '/month',
-      description: 'Full-service solution for data-driven organizations',
-      features: [
-        'Unlimited visualizations',
-        'Unlimited revisions',
-        'Same-day delivery',
-        'Dedicated support',
-        'Advanced dashboards',
-        'Real-time data integration',
-        'White-label options',
-        'API access'
-      ],
-      popular: false,
-      priceId: process.env.NEXT_PUBLIC_STRIPE_ENTERPRISE_PRICE_ID || 'price_enterprise'
     }
   ]
 
   return (
     <div className="min-h-screen bg-slate-950 text-white pt-24">
-      <div className="max-w-7xl mx-auto px-6 py-20">
+      <div className="max-w-6xl mx-auto px-6 py-20">
         <div className="text-center mb-16">
           <h1 className="text-5xl md:text-6xl font-bold mb-6">
             Simple, <span className="bg-gradient-to-r from-emerald-400 to-cyan-400 bg-clip-text text-transparent">Transparent Pricing</span>
           </h1>
           <p className="text-xl text-slate-400 max-w-2xl mx-auto">
-            Choose the plan that fits your needs. All plans include our quality guarantee.
+            Unlimited visualizations. Choose the plan that fits your needs.
           </p>
         </div>
 
-        <div className="grid md:grid-cols-3 gap-8">
+        <div className="grid md:grid-cols-2 gap-8 max-w-4xl mx-auto">
           {plans.map((plan, index) => (
             <div
               key={index}
               className={`relative bg-gradient-to-br from-slate-900 to-slate-800 p-8 rounded-2xl border transition-all transform hover:-translate-y-2 ${
                 plan.popular
-                  ? 'border-emerald-500 shadow-lg shadow-emerald-500/20'
+                  ? 'border-emerald-500 shadow-lg shadow-emerald-500/20 md:scale-105'
                   : 'border-slate-700 hover:border-slate-600'
               }`}
             >
@@ -147,6 +130,12 @@ export default function PricingPage() {
               </button>
             </div>
           ))}
+        </div>
+
+        <div className="text-center mt-12">
+          <p className="text-slate-400 text-sm">
+            All plans include unlimited revisions and our satisfaction guarantee
+          </p>
         </div>
       </div>
     </div>

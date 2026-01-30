@@ -10,38 +10,98 @@ export async function POST(req: Request) {
     }
 
     const body = await req.json()
-    const { title, description, deadline, dataType, userEmail } = body
+    const { title, description, dataType, userEmail, userName, file } = body
 
-    // Here you would save to your database
-    // For now, we'll just log it and return success
-    console.log('New request:', {
-      userId,
-      userEmail,
-      title,
-      description,
-      deadline,
-      dataType,
-      createdAt: new Date().toISOString()
-    })
+    // Prepare email content
+    const emailContent = `
+New Visualization Request from Datavizzy
+
+---
+Customer Information:
+- Name: ${userName}
+- Email: ${userEmail}
+- User ID: ${userId}
+
+---
+Request Details:
+- Project Title: ${title}
+- Data Type: ${dataType}
+- Description: ${description}
+
+---
+Attached File:
+- File Name: ${file.name}
+- File Type: ${file.type}
+
+---
+Submitted: ${new Date().toLocaleString()}
+
+The data file has been included as an attachment.
+    `.trim()
+
+    // Send email using Resend
+    const resendApiKey = process.env.RESEND_API_KEY
+    
+    if (resendApiKey) {
+      try {
+        const emailResponse = await fetch('https://api.resend.com/emails', {
+          method: 'POST',
+          headers: {
+            'Authorization': `Bearer ${resendApiKey}`,
+            'Content-Type': 'application/json',
+          },
+          body: JSON.stringify({
+            from: 'Datavizzy Requests <requests@datavizzy.com>',
+            to: process.env.ADMIN_EMAIL || 'your-email@example.com',
+            subject: `New Request: ${title}`,
+            text: emailContent,
+            attachments: [
+              {
+                filename: file.name,
+                content: file.data,
+              }
+            ]
+          }),
+        })
+
+        if (!emailResponse.ok) {
+          console.error('Failed to send email via Resend')
+        }
+      } catch (emailError) {
+        console.error('Error sending email:', emailError)
+      }
+    } else {
+      // Fallback: Log to console if Resend is not configured
+      console.log('=== NEW REQUEST SUBMITTED ===')
+      console.log(emailContent)
+      console.log('File:', file.name)
+      console.log('=============================')
+    }
 
     // TODO: Save to database
-    // Example:
+    // Example with Prisma:
     // await prisma.request.create({
     //   data: {
     //     userId,
     //     userEmail,
+    //     userName,
     //     title,
     //     description,
-    //     deadline,
     //     dataType,
+    //     fileName: file.name,
+    //     fileType: file.type,
+    //     fileData: file.data,
     //   }
     // })
 
-    return NextResponse.json({ success: true, message: 'Request submitted successfully' })
+    return NextResponse.json({ 
+      success: true, 
+      message: 'Request submitted successfully. We\'ll get back to you within 24-48 hours.' 
+    })
   } catch (error) {
     console.error('Error submitting request:', error)
     return NextResponse.json(
-      { error: 'Error submitting request' },
+      { error: 'Error submitting request. Please try again.' },
       { status: 500 }
     )
   }
