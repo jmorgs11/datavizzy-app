@@ -1,0 +1,46 @@
+import { NextResponse } from 'next/server'
+import { auth, currentUser, clerkClient } from '@clerk/nextjs'
+
+export async function POST(req: Request) {
+  try {
+    const { userId } = auth()
+    
+    if (!userId) {
+      return NextResponse.json({ error: 'Not authenticated' }, { status: 401 })
+    }
+
+    const user = await currentUser()
+    
+    if (!user) {
+      return NextResponse.json({ error: 'User not found' }, { status: 401 })
+    }
+
+    const body = await req.json()
+    const { stripeCustomerId } = body
+
+    if (!stripeCustomerId) {
+      return NextResponse.json({ error: 'Missing stripeCustomerId' }, { status: 400 })
+    }
+
+    // Update Clerk user metadata with Stripe customer ID
+    await clerkClient.users.updateUserMetadata(userId, {
+      publicMetadata: {
+        stripeCustomerId: stripeCustomerId,
+      },
+    })
+
+    return NextResponse.json({ 
+      success: true,
+      message: 'Stripe customer ID linked successfully!',
+      userId,
+      stripeCustomerId,
+      userEmail: user.primaryEmailAddress?.emailAddress
+    })
+  } catch (error: any) {
+    console.error('Error linking Stripe customer:', error)
+    return NextResponse.json({ 
+      error: 'Failed to link customer',
+      message: error.message 
+    }, { status: 500 })
+  }
+}
