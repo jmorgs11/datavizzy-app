@@ -45,12 +45,9 @@ export default function PricingPage() {
       period: '/month',
       description: 'Perfect for teams that need consistent visualization support',
       features: [
-        'Unlimited visualizations per month',
-        'Unlimited revisions',
+        'Unlimited visualization requests per month',
         '48-hour delivery',
-        'Email support',
-        'Advanced charts & dashboards',
-        'Custom branding'
+        'Email support'
       ],
       popular: false,
       priceId: process.env.NEXT_PUBLIC_STRIPE_STARTER_PRICE_ID || 'price_standard'
@@ -62,12 +59,8 @@ export default function PricingPage() {
       description: 'For teams that need visualization plus deep data analysis',
       features: [
         'Everything in Standard, plus:',
-        'Additional data analysis',
-        'Priority support & delivery',
-        '24-hour delivery',
-        'Interactive dashboards',
-        'Real-time data integration',
-        'Dedicated account manager'
+        'Accepts additional data analysis requests',
+        'Priority support & delivery'
       ],
       popular: true,
       priceId: process.env.NEXT_PUBLIC_STRIPE_PRO_PRICE_ID || 'price_pro'
