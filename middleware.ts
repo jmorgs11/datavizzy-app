@@ -4,14 +4,12 @@ export default authMiddleware({
   // Public routes that don't require authentication
   publicRoutes: [
     "/",
-    "/work",
+    "/work", 
     "/pricing",
-    "/api/webhooks(.*)",
-    "/api/webhooks/stripe",
   ],
-  // Ignore these routes completely (no Clerk processing at all)
+  // Completely ignore API routes - don't process them through Clerk at all
   ignoredRoutes: [
-    "/api/webhooks/stripe",
+    "/api/(.*)",
   ],
 });
 
