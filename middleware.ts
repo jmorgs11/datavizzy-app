@@ -6,10 +6,7 @@ export default authMiddleware({
     "/",
     "/work", 
     "/pricing",
-  ],
-  // Completely ignore API routes - don't process them through Clerk at all
-  ignoredRoutes: [
-    "/api/(.*)",
+    "/api/webhooks/stripe",  // Only the webhook is public
   ],
 });
 
