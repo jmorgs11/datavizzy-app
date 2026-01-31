@@ -80,7 +80,7 @@ The data file has been included as an attachment.
 
     return NextResponse.json({ 
       success: true, 
-      message: 'Request submitted successfully. We\'ll get back to you within 24-48 hours.' 
+      message: 'Request submitted successfully. We\'ll get back to you within 1-2 business days' 
     })
   } catch (error) {
     console.error('Error submitting request:', error)
