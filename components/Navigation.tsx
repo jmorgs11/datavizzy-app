@@ -53,14 +53,24 @@ export default function Navigation() {
               Pricing
             </Link>
             {isSignedIn && (
-              <Link
-                href="/submit-request"
-                className={`text-sm font-medium transition-colors ${
-                  isActive('/submit-request') ? 'text-emerald-400' : 'text-slate-400 hover:text-white'
-                }`}
-              >
-                Submit Request
-              </Link>
+              <>
+                <Link
+                  href="/submit-request"
+                  className={`text-sm font-medium transition-colors ${
+                    isActive('/submit-request') ? 'text-emerald-400' : 'text-slate-400 hover:text-white'
+                  }`}
+                >
+                  Submit Request
+                </Link>
+                <Link
+                  href="/account"
+                  className={`text-sm font-medium transition-colors ${
+                    isActive('/account') ? 'text-emerald-400' : 'text-slate-400 hover:text-white'
+                  }`}
+                >
+                  Account
+                </Link>
+              </>
             )}
             {isSignedIn ? (
               <UserButton afterSignOutUrl="/" />
@@ -114,13 +124,22 @@ export default function Navigation() {
               Pricing
             </Link>
             {isSignedIn && (
-              <Link
-                href="/submit-request"
-                onClick={() => setMobileMenuOpen(false)}
-                className={`text-left px-4 py-2 rounded ${isActive('/submit-request') ? 'bg-emerald-500/20 text-emerald-400' : 'text-slate-400'}`}
-              >
-                Submit Request
-              </Link>
+              <>
+                <Link
+                  href="/submit-request"
+                  onClick={() => setMobileMenuOpen(false)}
+                  className={`text-left px-4 py-2 rounded ${isActive('/submit-request') ? 'bg-emerald-500/20 text-emerald-400' : 'text-slate-400'}`}
+                >
+                  Submit Request
+                </Link>
+                <Link
+                  href="/account"
+                  onClick={() => setMobileMenuOpen(false)}
+                  className={`text-left px-4 py-2 rounded ${isActive('/account') ? 'bg-emerald-500/20 text-emerald-400' : 'text-slate-400'}`}
+                >
+                  Account
+                </Link>
+              </>
             )}
             {isSignedIn ? (
               <div className="px-4 py-2">
