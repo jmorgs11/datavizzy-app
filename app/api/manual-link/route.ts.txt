@@ -1,11 +1,11 @@
 import { NextResponse } from 'next/server'
-import { auth, currentUser, clerkClient } from '@clerk/nextjs'
+import { currentUser, clerkClient } from '@clerk/nextjs'
 
 export async function POST(req: Request) {
   try {
-    const { userId } = auth()
+    const user = await currentUser()
     
-    if (!userId) {
+    if (!user) {
       return NextResponse.json({ error: 'Not authenticated' }, { status: 401 })
     }
 
@@ -16,19 +16,21 @@ export async function POST(req: Request) {
       return NextResponse.json({ error: 'Missing stripeCustomerId' }, { status: 400 })
     }
 
-    await clerkClient.users.updateUserMetadata(userId, {
+    await clerkClient.users.updateUserMetadata(user.id, {
       publicMetadata: {
         stripeCustomerId: stripeCustomerId,
+        hasActiveSubscription: true,
       },
     })
 
     return NextResponse.json({ 
       success: true,
-      message: 'Linked!',
-      userId,
+      message: 'Successfully linked and activated subscription!',
+      userId: user.id,
       stripeCustomerId
     })
   } catch (error: any) {
+    console.error('Error linking:', error)
     return NextResponse.json({ 
       error: error.message 
     }, { status: 500 })

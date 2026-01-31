@@ -1,11 +1,11 @@
 import { NextResponse } from 'next/server'
-import { auth } from '@clerk/nextjs'
+import { currentUser } from '@clerk/nextjs'
 
 export async function POST(req: Request) {
   try {
-    const { userId } = auth()
+    const user = await currentUser()
     
-    if (!userId) {
+    if (!user) {
       return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
     }
 
@@ -20,7 +20,7 @@ New Visualization Request from Datavizzy
 Customer Information:
 - Name: ${userName}
 - Email: ${userEmail}
-- User ID: ${userId}
+- User ID: ${user.id}
 
 ---
 Request Details:
@@ -77,22 +77,6 @@ The data file has been included as an attachment.
       console.log('File:', file.name)
       console.log('=============================')
     }
-
-    // TODO: Save to database
-    // Example with Prisma:
-    // await prisma.request.create({
-    //   data: {
-    //     userId,
-    //     userEmail,
-    //     userName,
-    //     title,
-    //     description,
-    //     dataType,
-    //     fileName: file.name,
-    //     fileType: file.type,
-    //     fileData: file.data,
-    //   }
-    // })
 
     return NextResponse.json({ 
       success: true, 
