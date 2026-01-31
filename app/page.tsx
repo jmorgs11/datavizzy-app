@@ -42,7 +42,7 @@ export default function HomePage() {
             </div>
             <h3 className="text-2xl font-bold mb-3">Lightning Fast</h3>
             <p className="text-slate-400">
-              Get your visualizations delivered within 24-48 hours. No lengthy back-and-forth, just results.
+              Get your visualizations delivered within 1-2 business days. Just type us a request and attach any necessary data file.
             </p>
           </div>
 
