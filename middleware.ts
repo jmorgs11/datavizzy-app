@@ -6,8 +6,7 @@ export default authMiddleware({
     "/",
     "/work",
     "/pricing",
-    "/api/check-subscription",
-    "/api/webhooks/stripe",
+    "/api/webhooks/stripe",  // Only webhook is public - it's called by Stripe, not users
   ],
 });
 
