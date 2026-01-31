@@ -22,10 +22,13 @@ export async function POST(req: Request) {
 
     const { priceId } = await req.json()
 
+    // Get user's email
+    const userEmail = user.emailAddresses.find(email => email.id === user.primaryEmailAddressId)?.emailAddress
+
     const session = await stripe.checkout.sessions.create({
       mode: 'subscription',
       payment_method_types: ['card'],
-      customer_email: user.primaryEmailAddress?.emailAddress,
+      customer_email: userEmail,
       line_items: [
         {
           price: priceId,
