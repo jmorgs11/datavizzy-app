@@ -47,7 +47,7 @@ export async function POST(req: Request) {
           await clerkClient.users.updateUserMetadata(clerkUserId, {
             publicMetadata: {
               stripeCustomerId: stripeCustomerId,
-              hasActiveSubscription: true,  // ← Cache subscription status!
+              hasActiveSubscription: true,
             },
           })
           console.log('✅ Linked Stripe customer and set active subscription to TRUE')
@@ -59,18 +59,15 @@ export async function POST(req: Request) {
         console.log('🔄 Subscription updated:', subscription.id, 'Status:', subscription.status)
         
         // Find the Clerk user with this Stripe customer ID
-        const users = await clerkClient.users.getUserList({
-          limit: 100,
-        })
-        
-        const user = users.data.find(u => u.publicMetadata?.stripeCustomerId === subscription.customer)
+        const userList = await clerkClient.users.getUserList({ limit: 100 })
+        const user = userList.find(u => u.publicMetadata?.stripeCustomerId === subscription.customer)
         
         if (user) {
           const isActive = subscription.status === 'active'
           await clerkClient.users.updateUserMetadata(user.id, {
             publicMetadata: {
               stripeCustomerId: subscription.customer,
-              hasActiveSubscription: isActive,  // ← Update cache!
+              hasActiveSubscription: isActive,
             },
           })
           console.log(`✅ Updated subscription status to ${isActive} for user ${user.id}`)
@@ -82,17 +79,14 @@ export async function POST(req: Request) {
         console.log('❌ Subscription cancelled:', deletedSubscription.id)
         
         // Find the Clerk user with this Stripe customer ID
-        const allUsers = await clerkClient.users.getUserList({
-          limit: 100,
-        })
-        
-        const cancelledUser = allUsers.data.find(u => u.publicMetadata?.stripeCustomerId === deletedSubscription.customer)
+        const allUsers = await clerkClient.users.getUserList({ limit: 100 })
+        const cancelledUser = allUsers.find(u => u.publicMetadata?.stripeCustomerId === deletedSubscription.customer)
         
         if (cancelledUser) {
           await clerkClient.users.updateUserMetadata(cancelledUser.id, {
             publicMetadata: {
               stripeCustomerId: deletedSubscription.customer,
-              hasActiveSubscription: false,  // ← Set to false!
+              hasActiveSubscription: false,
             },
           })
           console.log(`✅ Set subscription to FALSE for user ${cancelledUser.id}`)
