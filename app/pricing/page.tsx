@@ -127,7 +127,7 @@ export default function PricingPage() {
 
         <div className="text-center mt-12">
           <p className="text-slate-400 text-sm">
-            All plans include unlimited revisions and our satisfaction guarantee
+            Pricing is demand based and subject to change at anytime
           </p>
         </div>
       </div>
