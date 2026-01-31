@@ -1,10 +1,5 @@
 import { NextResponse } from 'next/server'
 import { auth, currentUser } from '@clerk/nextjs'
-import Stripe from 'stripe'
-
-const stripe = new Stripe(process.env.STRIPE_SECRET_KEY!, {
-  apiVersion: '2023-10-16',
-})
 
 export async function GET() {
   try {
@@ -20,25 +15,14 @@ export async function GET() {
       return NextResponse.json({ hasActiveSubscription: false }, { status: 401 })
     }
 
-    // Get the Stripe customer ID from user metadata
-    const stripeCustomerId = user.publicMetadata?.stripeCustomerId as string | undefined
+    // Simply read from cached metadata - no Stripe API call!
+    const hasActiveSubscription = user.publicMetadata?.hasActiveSubscription === true
 
-    if (!stripeCustomerId) {
-      return NextResponse.json({ hasActiveSubscription: false })
-    }
-
-    // Check for active subscriptions
-    const subscriptions = await stripe.subscriptions.list({
-      customer: stripeCustomerId,
-      status: 'active',
-      limit: 1,
-    })
-
-    const hasActiveSubscription = subscriptions.data.length > 0
+    console.log('🔍 Subscription check for user:', userId)
+    console.log('📝 Cached status:', hasActiveSubscription)
 
     return NextResponse.json({ 
-      hasActiveSubscription,
-      subscription: hasActiveSubscription ? subscriptions.data[0] : null
+      hasActiveSubscription
     })
   } catch (error) {
     console.error('Error checking subscription:', error)

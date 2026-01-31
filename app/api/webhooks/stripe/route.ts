@@ -34,7 +34,6 @@ export async function POST(req: Request) {
 
   console.log('✅ Webhook verified:', event.type)
 
-  // Handle the event
   try {
     switch (event.type) {
       case 'checkout.session.completed':
@@ -44,34 +43,60 @@ export async function POST(req: Request) {
         const clerkUserId = session.metadata?.clerkUserId
         const stripeCustomerId = session.customer as string
 
-        console.log('📝 Clerk User ID:', clerkUserId)
-        console.log('📝 Stripe Customer ID:', stripeCustomerId)
-
         if (clerkUserId && stripeCustomerId) {
-          try {
-            await clerkClient.users.updateUserMetadata(clerkUserId, {
-              publicMetadata: {
-                stripeCustomerId: stripeCustomerId,
-              },
-            })
-            console.log('✅ Successfully linked Stripe customer to Clerk user!')
-            console.log(`   Clerk: ${clerkUserId} → Stripe: ${stripeCustomerId}`)
-          } catch (clerkError: any) {
-            console.error('❌ Error updating Clerk user:', clerkError.message)
-          }
-        } else {
-          console.warn('⚠️ Missing clerkUserId or stripeCustomerId in session')
+          await clerkClient.users.updateUserMetadata(clerkUserId, {
+            publicMetadata: {
+              stripeCustomerId: stripeCustomerId,
+              hasActiveSubscription: true,  // ← Cache subscription status!
+            },
+          })
+          console.log('✅ Linked Stripe customer and set active subscription to TRUE')
         }
         break
 
       case 'customer.subscription.updated':
         const subscription = event.data.object as Stripe.Subscription
-        console.log('🔄 Subscription updated:', subscription.id)
+        console.log('🔄 Subscription updated:', subscription.id, 'Status:', subscription.status)
+        
+        // Find the Clerk user with this Stripe customer ID
+        const users = await clerkClient.users.getUserList({
+          limit: 100,
+        })
+        
+        const user = users.data.find(u => u.publicMetadata?.stripeCustomerId === subscription.customer)
+        
+        if (user) {
+          const isActive = subscription.status === 'active'
+          await clerkClient.users.updateUserMetadata(user.id, {
+            publicMetadata: {
+              stripeCustomerId: subscription.customer,
+              hasActiveSubscription: isActive,  // ← Update cache!
+            },
+          })
+          console.log(`✅ Updated subscription status to ${isActive} for user ${user.id}`)
+        }
         break
 
       case 'customer.subscription.deleted':
         const deletedSubscription = event.data.object as Stripe.Subscription
         console.log('❌ Subscription cancelled:', deletedSubscription.id)
+        
+        // Find the Clerk user with this Stripe customer ID
+        const allUsers = await clerkClient.users.getUserList({
+          limit: 100,
+        })
+        
+        const cancelledUser = allUsers.data.find(u => u.publicMetadata?.stripeCustomerId === deletedSubscription.customer)
+        
+        if (cancelledUser) {
+          await clerkClient.users.updateUserMetadata(cancelledUser.id, {
+            publicMetadata: {
+              stripeCustomerId: deletedSubscription.customer,
+              hasActiveSubscription: false,  // ← Set to false!
+            },
+          })
+          console.log(`✅ Set subscription to FALSE for user ${cancelledUser.id}`)
+        }
         break
 
       default:
