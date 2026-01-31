@@ -4,9 +4,10 @@ export default authMiddleware({
   // Public routes that don't require authentication
   publicRoutes: [
     "/",
-    "/work", 
+    "/work",
     "/pricing",
-    "/api/webhooks/stripe",  // Only the webhook is public
+    "/api/check-subscription",
+    "/api/webhooks/stripe",
   ],
 });
 

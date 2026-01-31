@@ -19,19 +19,31 @@ export default function SubmitRequestPage() {
   })
 
   useEffect(() => {
-    // Check if user has active subscription
-    const checkSubscription = async () => {
-      if (!isSignedIn) {
-        setCheckingSubscription(false)
-        return
-      }
+    if (!isSignedIn) return
 
+    const checkSubscription = async () => {
       try {
-        const response = await fetch('/api/check-subscription')
-        const data = await response.json()
-        setHasActiveSubscription(data.hasActiveSubscription)
-      } catch (error) {
-        console.error('Error checking subscription:', error)
+        const res = await fetch('/api/check-subscription', {
+          cache: 'no-store',
+        })
+        const data = await res.json()
+
+        // Retry once if webhook is still processing
+        if (!data.hasActiveSubscription) {
+          setTimeout(async () => {
+            const retry = await fetch('/api/check-subscription', {
+              cache: 'no-store',
+            })
+            const retryData = await retry.json()
+            setHasActiveSubscription(retryData.hasActiveSubscription)
+            setCheckingSubscription(false)
+          }, 1500)
+          return
+        }
+
+        setHasActiveSubscription(true)
+      } catch (err) {
+        console.error(err)
         setHasActiveSubscription(false)
       } finally {
         setCheckingSubscription(false)
