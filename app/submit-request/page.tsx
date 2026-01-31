@@ -19,7 +19,10 @@ export default function SubmitRequestPage() {
   })
 
   useEffect(() => {
-    if (!isSignedIn) return
+    if (!isSignedIn) {
+      setCheckingSubscription(false)
+      return
+    }
 
     const checkSubscription = async () => {
       try {
@@ -27,23 +30,11 @@ export default function SubmitRequestPage() {
           cache: 'no-store',
         })
         const data = await res.json()
-
-        // Retry once if webhook is still processing
-        if (!data.hasActiveSubscription) {
-          setTimeout(async () => {
-            const retry = await fetch('/api/check-subscription', {
-              cache: 'no-store',
-            })
-            const retryData = await retry.json()
-            setHasActiveSubscription(retryData.hasActiveSubscription)
-            setCheckingSubscription(false)
-          }, 1500)
-          return
-        }
-
-        setHasActiveSubscription(true)
+        
+        console.log('✅ Subscription check result:', data)
+        setHasActiveSubscription(data.hasActiveSubscription)
       } catch (err) {
-        console.error(err)
+        console.error('❌ Error checking subscription:', err)
         setHasActiveSubscription(false)
       } finally {
         setCheckingSubscription(false)
@@ -132,7 +123,6 @@ export default function SubmitRequestPage() {
     setLoading(true)
 
     try {
-      // Convert file to base64
       const fileBase64 = await new Promise<string>((resolve, reject) => {
         const reader = new FileReader()
         reader.onload = () => {
@@ -143,6 +133,8 @@ export default function SubmitRequestPage() {
         reader.readAsDataURL(file)
       })
 
+      const userEmail = user.emailAddresses.find(email => email.id === user.primaryEmailAddressId)?.emailAddress
+
       const response = await fetch('/api/submit-request', {
         method: 'POST',
         headers: {
@@ -151,7 +143,7 @@ export default function SubmitRequestPage() {
         body: JSON.stringify({
           ...requestForm,
           userId: user.id,
-          userEmail: user.primaryEmailAddress?.emailAddress,
+          userEmail: userEmail,
           userName: user.fullName || user.firstName || 'User',
           file: {
             name: file.name,
@@ -164,7 +156,7 @@ export default function SubmitRequestPage() {
       const data = await response.json()
 
       if (response.ok) {
-        alert('Request submitted successfully! We\'ll get back to you within 24-48 hours at ' + user.primaryEmailAddress?.emailAddress)
+        alert('Request submitted successfully! We\'ll get back to you within 24-48 hours at ' + userEmail)
         setRequestForm({ title: '', description: '', dataType: '' })
         setFile(null)
       } else {
