@@ -1,14 +1,8 @@
 import { NextResponse } from 'next/server'
-import { auth, currentUser } from '@clerk/nextjs'
+import { currentUser } from '@clerk/nextjs/server'
 
 export async function GET() {
   try {
-    const { userId } = auth()
-    
-    if (!userId) {
-      return NextResponse.json({ hasActiveSubscription: false }, { status: 401 })
-    }
-
     const user = await currentUser()
     
     if (!user) {
@@ -18,7 +12,7 @@ export async function GET() {
     // Simply read from cached metadata - no Stripe API call!
     const hasActiveSubscription = user.publicMetadata?.hasActiveSubscription === true
 
-    console.log('🔍 Subscription check for user:', userId)
+    console.log('🔍 Subscription check for user:', user.id)
     console.log('📝 Cached status:', hasActiveSubscription)
 
     return NextResponse.json({ 
