@@ -52,7 +52,7 @@ export default function HomePage() {
             </div>
             <h3 className="text-2xl font-bold mb-3">Expert Design</h3>
             <p className="text-slate-400">
-              Our team specializes in creating beautiful, publication-ready charts and dashboards.
+              Our team specializes in creating beautiful, publication ready visuals.
             </p>
           </div>
 
