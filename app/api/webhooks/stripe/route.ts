@@ -1,7 +1,7 @@
 import { NextResponse } from 'next/server'
 import Stripe from 'stripe'
 import { headers } from 'next/headers'
-import { clerkClient } from '@clerk/nextjs/server'
+import { clerkClient } from '@clerk/nextjs'
 
 const stripe = new Stripe(process.env.STRIPE_SECRET_KEY!, {
   apiVersion: '2023-10-16',
@@ -49,7 +49,7 @@ export async function POST(req: Request) {
 
         if (clerkUserId && stripeCustomerId) {
           try {
-            await clerkClient.users.updateUser(clerkUserId, {
+            await clerkClient.users.updateUserMetadata(clerkUserId, {
               publicMetadata: {
                 stripeCustomerId: stripeCustomerId,
               },
@@ -61,14 +61,12 @@ export async function POST(req: Request) {
           }
         } else {
           console.warn('⚠️ Missing clerkUserId or stripeCustomerId in session')
-          console.warn('   clerkUserId:', clerkUserId)
-          console.warn('   stripeCustomerId:', stripeCustomerId)
         }
         break
 
       case 'customer.subscription.updated':
         const subscription = event.data.object as Stripe.Subscription
-        console.log('🔄 Subscription updated:', subscription.id, 'Status:', subscription.status)
+        console.log('🔄 Subscription updated:', subscription.id)
         break
 
       case 'customer.subscription.deleted':
@@ -81,7 +79,6 @@ export async function POST(req: Request) {
     }
   } catch (handlerError: any) {
     console.error('❌ Error handling webhook event:', handlerError.message)
-    // Still return 200 so Stripe doesn't retry
   }
 
   return NextResponse.json({ received: true })
